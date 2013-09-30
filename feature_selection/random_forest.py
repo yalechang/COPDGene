@@ -166,7 +166,7 @@ for i in range(len(tp)-1):
             tp[j] = temp
 
 # Write the ranked features into a csv file
-file_result = open("features_importance.csv","wb")
+file_result = open("data/features_importance.csv","wb")
 file_writer = csv.writer(file_result)
 file_writer.writerow(["Rank","Feature Name","Feature Score"])
 for i in range(len(tp)):
