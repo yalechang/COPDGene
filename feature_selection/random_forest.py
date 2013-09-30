@@ -195,3 +195,4 @@ for i in range(n_instances):
     for j in range(n_instances):
         mtr_l[i,j] = 1./np.sqrt(mtr_d[i])*mtr_affinity[i,j]*1./np.sqrt(mtr_d[j])
 """
+# Test for History function of GitHub
