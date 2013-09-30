@@ -29,63 +29,46 @@ n_categorical = 0
 n_continuous = 0
 n_interval = 0
 n_ordinal = 0
+
+# Store dataset that only contains 'binary', 'continuous' and 'interval'
+data_use = []
+features_name_use = []
+features_type_use = []
 for j in range(len(features_type)):
     if features_type[j] == "binary":
         n_binary += 1
+        data_use.append(list(np.double(dataset[:,j])))
+        features_name_use.append(features_name[j])
+        features_type_use.append(features_type[j])
     elif features_type[j] == "categorical":
         n_categorical += 1
         #print "categorical",j,features_name[j]
     elif features_type[j] == "continuous":
         n_continuous += 1
+        data_use.append(list(np.double(dataset[:,j])))
+        features_name_use.append(features_name[j])
+        features_type_use.append(features_type[j])
     elif features_type[j] == "interval":
         n_interval += 1
+        data_use.append(list(np.double(dataset[:,j])))
+        features_name_use.append(features_name[j])
+        features_type_use.append(features_type[j]) 
     elif features_type[j] == "ordinal":
         n_ordinal += 1
         #print "ordinal",j,features_name[j]
     else:
         pass
 #print n_binary,n_categorical,n_continuous,n_interval,n_ordinal
-
-# Dataset after preprocessing
-data = np.zeros((dataset.shape[0],dataset.shape[1]+1))
-index_datacol = 0
-tp_features_name = []
-tp_features_type = []
-for j in range(len(features_name)):
-    if features_name[j] not in ["finalGold","NewGOLD_SGRQ","LimitWalkMost"]:
-        for i in range(dataset.shape[0]):
-            data[i,index_datacol] = float(dataset[i,j])
-        index_datacol += 1
-        tp_features_name.append(features_name[j])
-        tp_features_type.append(features_type[j])
-    if features_name[j] == "LimitWalkMost":
-        index_LimitWalkMost = j
-
-# Encode for categorical features
-for i in range(dataset.shape[0]):
-    if dataset[i,index_LimitWalkMost] == '0':
-        data[i,index_datacol:index_datacol+4] = np.array([0,0,0,1])
-    if dataset[i,index_LimitWalkMost] == '1':
-        data[i,index_datacol:index_datacol+4] = np.array([0,0,1,0])
-    if dataset[i,index_LimitWalkMost] == '2':
-        data[i,index_datacol:index_datacol+4] = np.array([0,1,0,0])
-    if dataset[i,index_LimitWalkMost] == '3':
-        data[i,index_datacol:index_datacol+4] = np.array([1,0,0,0])
-
-# Change features information accordingly
-for i in range(4):
-    tp_features_name.append("LimitWalkMost_"+str(i))
-    tp_features_type.append('binary')
-features_name = tp_features_name
-features_type = tp_features_type
+data_use = np.array(data_use).T
+data = data_use
 
 # Separate training set and testing set using RandomGroupCode
-for j in range(len(features_name)):
-    if features_name[j] == "RandomGroupCode":
+for j in range(len(features_name_use)):
+    if features_name_use[j] == "RandomGroupCode":
         index_RandomGroupCode = j
 data_train = []
 data_test = []
-for i in range(dataset.shape[0]):
+for i in range(data.shape[0]):
     if data[i,index_RandomGroupCode]>=0 and data[i,index_RandomGroupCode]<=5:
         data_train.append(list(data[i,0:index_RandomGroupCode])+\
                 list(data[i,index_RandomGroupCode+1:data.shape[1]]))
@@ -95,9 +78,11 @@ for i in range(dataset.shape[0]):
 data_train = np.array(data_train)
 data_test = np.array(data_test)
 
+"""
 # We still need to remove "RandomGroupCode"
-del features_name[index_RandomGroupCode]
-del features_type[index_RandomGroupCode]
+del features_name_use[index_RandomGroupCode]
+del features_type_use[index_RandomGroupCode]
+
 
 # Random sample with replacement from data_train to form a reference dataset
 data_train_ref = np.zeros((data_train.shape[0],data_train.shape[1]))
@@ -173,16 +158,6 @@ for i in range(len(tp)):
     file_writer.writerow([i+1,tp[i],features_importance[i]])
 file_result.close()
 
-"""
-# Write the similarity matrix into a csv file
-file_affinity = open("mtr_affinity_dis.csv","wb")
-file_writer = csv.writer(file_affinity)
-for i in range(mtr_affinity.shape[0]):
-    file_writer.writerow(list(mtr_affinity[i,:]))
-file_affinity.close()
-"""
-
-"""
 # Construct Laplacian from similarity matrix
 
 # Degree matrix
@@ -195,4 +170,3 @@ for i in range(n_instances):
     for j in range(n_instances):
         mtr_l[i,j] = 1./np.sqrt(mtr_d[i])*mtr_affinity[i,j]*1./np.sqrt(mtr_d[j])
 """
-# Test for History function of GitHub
