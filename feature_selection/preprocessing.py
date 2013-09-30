@@ -1,7 +1,7 @@
 """
 Parameters
 ----------
-dataset_complete_mean.pkl: containing all the information after the dataset
+dataset_complete_mean.pkl: containing all the information about the dataset
 after imputation, including the following:
     1) dataset: array, shape(8760, 211)
     2) features_name: list, len(210) <'RandomGroupCode' is removed>
