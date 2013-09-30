@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+
+\title{\textbf{Random Forest on COPDGene Dataset}}
+\author{Yale Chang}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Dataset Preprocessing}
+In the dataset, there're 8760 samples, 211 features.
+The number of different types of features are as follows:\\
+\\
+n\_binary = 129\\
+n\_categorical = 3\\
+n\_continuous = 52\\
+n\_interval = 25\\
+n\_ordinal = 2\\
+\\
+We need to encode categorical variables in order to apply random forest classification.\\
+1) ``race'': there're only two values `1',`2'. It's natural to set threshold in a decision tree, so we don't need to do encoding for this feature.It's the same for binary features.\\
+\\
+2) ``LimitWalkMost'': there're four values. 0=Neither, 1=Shortness of breath, 2=leg or back discomfort, 3=Both. We need to use a dummy coding scheme, ie, $0\rightarrow 0001, 1\rightarrow 0010, 2\rightarrow 0100, 3\rightarrow 1000.$\\
+\\
+3) ``NewGOLD\_SGRQ'': there're eight values. A,B,C1,C2,C3,D1,D2,D3.\\
+\\
+\textbf{Question}: Do we need to remove ``NewGOLD\_SGRQ'' and ``finalGold'' before applying Random Forest because their strong correlation with GOLD?\\
+\\
+We also have ordinal features:\\
+1) ``HealthStatus'':5=Excellent, 4=Very Good, 3=Good, 2=Fari, 1=Poor.\\
+\\
+2)``SchoolCompleted'': 1=8th grade or less, 2=High shcool no diploma, 3=High school graduate or GED, 4=Some college or technical school no degree, 5=College or technical school graduate(Bachelor's or Associate degree), 6=Master's or Doctoral degree.\\
+\\
+\textbf{Question}: Is it reasonable to treat these features as ordinal instead of categorical?\\
+\\
+
+After removing ``finalGold'', ``NewGOLD\_SGRQ'' and encode ``LimitWalkMost'' with four binary variables, we get a dataset with 8760 samples and 212 features.
+
+
+\end{document}
