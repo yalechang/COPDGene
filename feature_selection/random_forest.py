@@ -154,7 +154,48 @@ print(["Random Forest Running Time(min):",(t1-t0)/60])
 features_importance = clf.feature_importances_
 tp = copy.copy(features_name_use)
 
-# Rank features according to features_importance in descending order
+# Rank features according to features_importance
+features_rank_con = range(n_continuous+n_interval)
+features_rank_dis = range(n_binary)
+
+# Separate importance score into continuous and discrete
+# To distinguish the features name and type obtained from data_train.pkl, we
+# add '1' after the ending position.
+features_importance_con = []
+features_name_con_1 = []
+features_type_con_1 = []
+
+features_importance_dis = []
+features_name_dis_1 = []
+features_type_dis_1 = []
+
+for i in range(len(features_importance)):
+    if features_type_use[i] in ['continuous','interval']:
+        features_importance_con.append(features_importance[i])
+        features_name_con_1.append(features_name_use[i])
+        features_type_con_1.append(features_type_use[i])
+    if features_type_use[i] == 'binary':
+        features_importance_dis.append(features_importance[i])
+        features_name_dis_1.append(features_name_use[i])
+        features_type_dis_1.append(features_type_use[i])
+assert len(features_importance_con) == n_continuous+n_interval-1
+assert len(features_importance_dis) == n_binary
+
+# Check whether continuous features info obtained from data_train.pkl and
+# data_complete_mean.pkl are the same(Expected to be the same)
+# Then we can directly use mtr_nhsic_con as input for redundancy removal
+assert len(features_name_con) == len(features_name_con_1)
+flag = True
+for i in range(len(features_name_con)):
+    if features_name_con[i] != features_name_con_1[i]:
+        flag = False
+        break
+assert flag == True
+
+# Since we only keep binary features, features in features_name_dis_1 should be
+# a subset of features_name_dis
+
+
 for i in range(len(tp)-1):
     for j in range(i+1,len(tp)):
         if features_importance[i] < features_importance[j]:
