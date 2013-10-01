@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 def remove_redundancy(features_rank, thd, mtr_nhsic):
     """ This function remove redundancy between features according to method 2,
@@ -50,3 +51,4 @@ def remove_redundancy(features_rank, thd, mtr_nhsic):
             features_sel.append(features_ranked[i])
 
     return features_sel
+    

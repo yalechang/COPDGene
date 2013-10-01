@@ -9,10 +9,14 @@ import pickle
 from sklearn.cluster import spectral_clustering
 import copy
 import csv
+from python.COPDGene.utils.remove_redundancy import remove_redundancy
+from python.COPDGene.utils.obtain_rank_use_score import obtain_rank_use_score
 
 ########################### Parameter Settings################################
 # Number of clusters of samples for applying spectral clustering
 n_clusters = 4
+# Threshold for removing redundancy
+thd = 0.7
 ##############################################################################
 
 
@@ -192,19 +196,14 @@ for i in range(len(features_name_con)):
         break
 assert flag == True
 
+# Remove redundancy for continuous features
+features_rank_con, features_importance_con_ranked = obtain_rank_use_score(\
+        features_name_con_1,features_importance_con)
+features_sel_con = remove_redundancy(features_rank_con,thd,mtr_nhsic_con)
+
 # Since we only keep binary features, features in features_name_dis_1 should be
 # a subset of features_name_dis
 
-
-for i in range(len(tp)-1):
-    for j in range(i+1,len(tp)):
-        if features_importance[i] < features_importance[j]:
-            temp = features_importance[i]
-            features_importance[i] = features_importance[j]
-            features_importance[j] = temp
-            temp = tp[i]
-            tp[i] = tp[j]
-            tp[j] = temp
 
 # Write the ranked features into a csv file
 file_result = open("data/features_importance.csv","wb")
