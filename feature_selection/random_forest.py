@@ -1,3 +1,14 @@
+"""This script implements the following functions:
+    1) Rank all the features(including continuous and discrete) using random
+    forest.
+    2) Remove redundancy between features according the pairwise Normalized
+    HSIC.
+    3) Save the ids of selected features for continuous and discrete
+    respectively.
+"""
+
+print __doc__
+
 import numpy as np
 import pickle
 from sklearn.ensemble import RandomForestClassifier
