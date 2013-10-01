@@ -1,3 +1,6 @@
+import numpy as np
+import copy
+
 def obtain_rank_use_score(features_name, features_importance):
     """This function obtains features rank according to features importance
     score. Note that the feature with the highest score should be rank 0 and

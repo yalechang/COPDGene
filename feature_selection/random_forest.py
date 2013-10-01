@@ -197,13 +197,36 @@ for i in range(len(features_name_con)):
 assert flag == True
 
 # Remove redundancy for continuous features
-features_rank_con, features_importance_con_ranked = obtain_rank_use_score(\
-        features_name_con_1,features_importance_con)
+features_rank_con, features_importance_con_ranked = \
+        obtain_rank_use_score(features_name_con_1,features_importance_con)
 features_sel_con = remove_redundancy(features_rank_con,thd,mtr_nhsic_con)
 
 # Since we only keep binary features, features in features_name_dis_1 should be
 # a subset of features_name_dis
+index_keep = []
+for i in range(len(features_name_dis)):
+    if features_name_dis[i] in features_name_dis_1:
+        index_keep.append(i)
+mtr_nhsic_dis_1 = np.zeros((len(index_keep),len(index_keep)))
+for i in range(len(index_keep)):
+    for j in range(len(index_keep)):
+        mtr_nhsic_dis_1[i,j] = mtr_nhsic_dis[index_keep[i],index_keep[j]]
 
+# Remove redundancy for discrete features
+features_rank_dis, features_importance_dis_ranked = \
+        obtain_rank_use_score(features_name_dis_1,features_importance_dis)
+features_sel_dis = remove_redundancy(features_rank_dis,thd,mtr_nhsic_dis_1)
+
+# Save the selected features
+file_result = open("data/features_sel_rm_redundancy.pkl","wb")
+result = [features_sel_con,features_name_con_1,\
+        features_sel_dis,features_name_dis_1]
+pickle.dump(result,file_result)
+file_result.close()
+
+# Test the stability of redundancy removal
+print features_sel_con[0:20]
+print features_sel_dis[0:20]
 
 # Write the ranked features into a csv file
 file_result = open("data/features_importance.csv","wb")
