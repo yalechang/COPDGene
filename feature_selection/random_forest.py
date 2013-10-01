@@ -78,11 +78,24 @@ for i in range(data.shape[0]):
 data_train = np.array(data_train)
 data_test = np.array(data_test)
 
-"""
-# We still need to remove "RandomGroupCode"
+# Remove "RandomGroupCode" in the feature information accordingly
 del features_name_use[index_RandomGroupCode]
 del features_type_use[index_RandomGroupCode]
 
+# Load HSIC matrix for continuous features and discrete features
+file_hsic = open("data/mtr_hsic_nhsic_con.pkl","rb")
+mtr_hsic_con,mtr_nhsic_con = pickle.load(file_hsic)
+file_hsic.close()
+file_hsic = open("data/mtr_hsic_nhsic_dis.pkl","rb")
+mtr_hsic_dis,mtr_nhsic_dis = pickle.load(file_hsic)
+file_hsic.close()
+
+# Load information about continuous and discrete features
+file_data_train = open("/home/changyale/dataset/COPDGene/data_train.pkl","rb")
+info_con,info_dis,gold = pickle.load(file_data_train)
+file_data_train.close()
+data_con, features_name_con, features_type_con = info_con
+data_dis, features_name_dis, features_type_dis = info_dis
 
 # Random sample with replacement from data_train to form a reference dataset
 data_train_ref = np.zeros((data_train.shape[0],data_train.shape[1]))
@@ -90,7 +103,9 @@ for j in range(data_train_ref.shape[1]):
     tp_index = sample_wr(range(data_train_ref.shape[0]),data_train_ref.shape[0])
     for i in range(len(tp_index)):
         data_train_ref[i,j] = data_train[tp_index[i],j]
-# Label data_train as class 0 and data_train_ref as class 1
+
+# Label data_train as class 0 and data_train_ref as class 1, resulting in a
+# dataset "data_use" and its label "labels"
 labels = []
 data_use = np.zeros((data_train.shape[0]+data_train_ref.shape[0],\
         data_train.shape[1]))
@@ -102,7 +117,7 @@ for i in range(data_train_ref.shape[0]):
     labels.append(1)
 labels = np.array(labels)
 
-# Random Forest Classifier
+# Apply Random Forest Classifier on the dataset to obtain importance score
 t0 = time()
 clf = RandomForestClassifier(n_estimators=1000,criterion='gini',max_depth=None,\
         min_samples_split=2,min_samples_leaf=1,max_features='auto',\
@@ -113,11 +128,11 @@ t1 = time()
 print(["Random Forest Running Time(min):",(t1-t0)/60])
 
 # Compute similarity matrix for the training set
-leaf_index = clf.apply(data_train)
-t0 = time()
-mtr_affinity = compute_similarity_from_leaf_index(np.double(leaf_index))
-t1 = time()
-print(["Similarity matrix computation time(min)",(t1-t0)/60])
+#leaf_index = clf.apply(data_train)
+#t0 = time()
+#mtr_affinity = compute_similarity_from_leaf_index(np.double(leaf_index))
+#t1 = time()
+#print(["Similarity matrix computation time(min)",(t1-t0)/60])
 
 # Store the similarity matrix for future use
 #file_result = open("mtr_affinity_random_forest.pkl","wb")
@@ -127,17 +142,17 @@ print(["Similarity matrix computation time(min)",(t1-t0)/60])
 # Apply spectral clustering given the similarity matrix as input. Note here
 # since we already have similarity matrix, we don't have to specify the scale
 # parameter to construct the kernel matrix
-t0 = time()
-labels_train = spectral_clustering(mtr_affinity,n_clusters=n_clusters,\
-        n_components=None,eigen_solver=None,random_state=None,n_init=10,\
-        k=None,eigen_tol=0.0,assign_labels='kmeans',mode=None)
-t1 = time()
-print(["Spectral Clustering time(min)",(t1-t0)/60])
+#t0 = time()
+#labels_train = spectral_clustering(mtr_affinity,n_clusters=n_clusters,\
+#        n_components=None,eigen_solver=None,random_state=None,n_init=10,\
+#        k=None,eigen_tol=0.0,assign_labels='kmeans',mode=None)
+#t1 = time()
+#print(["Spectral Clustering time(min)",(t1-t0)/60])
 
-# Get the eigenvalues associated with the similarity matrix
+# (Optional)Get the eigenvalues associated with the similarity matrix
 
 features_importance = clf.feature_importances_
-tp = copy.copy(features_name)
+tp = copy.copy(features_name_use)
 
 # Rank features according to features_importance in descending order
 for i in range(len(tp)-1):
@@ -159,14 +174,12 @@ for i in range(len(tp)):
 file_result.close()
 
 # Construct Laplacian from similarity matrix
-
 # Degree matrix
-mtr_d = sum(mtr_affinity)
+#mtr_d = sum(mtr_affinity)
 
 # Laplacian matrix
-n_instances = mtr_affinity.shape[0]
-mtr_l = np.zeros((n_instances,n_instances))
-for i in range(n_instances):
-    for j in range(n_instances):
-        mtr_l[i,j] = 1./np.sqrt(mtr_d[i])*mtr_affinity[i,j]*1./np.sqrt(mtr_d[j])
-"""
+#n_instances = mtr_affinity.shape[0]
+#mtr_l = np.zeros((n_instances,n_instances))
+#for i in range(n_instances):
+#    for j in range(n_instances):
+#        mtr_l[i,j] = 1./np.sqrt(mtr_d[i])*mtr_affinity[i,j]*1./np.sqrt(mtr_d[j])

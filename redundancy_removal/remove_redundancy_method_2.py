@@ -13,31 +13,26 @@ from sklearn.preprocessing import scale
 import random
 from sklearn.metrics import normalized_mutual_info_score
 from time import time
-from my_hierarchical_clustering import my_hierarchical_clustering
+from python.COPDGene.utils.my_hierarchical_clustering import my_hierarchical_clustering
 from scipy.cluster.hierarchy import dendrogram
 from scipy.cluster.hierarchy import linkage
 import copy
+from python.COPDGene.utils.remove_redundancy import remove_redundancy
 
 # Load training dataset
-file_data_train = open("data_train.pkl","rb")
+file_data_train = open("/home/changyale/dataset/COPDGene/data_train.pkl","rb")
 info_con_train,info_dis_train,gold_train = pickle.load(file_data_train)
 data_con_train, features_name_con_train, features_type_con_train = \
         info_con_train
 file_data_train.close()
 
-# Load testing dataset
-file_data_test = open("data_test.pkl","rb")
-info_con_test,info_dis_test,gold_test = pickle.load(file_data_test)
-data_con_test, features_name_con_test, features_type_con_test = info_con_test
-file_data_test.close()
-
 # Load affinity matrix
-file_hsic = open("mtr_hsic_nhsic.pkl","rb")
+file_hsic = open("../feature_selection/data/mtr_hsic_nhsic_con.pkl","rb")
 mtr_hsic, mtr_nhsic = pickle.load(file_hsic)
 file_hsic.close()
 
 # Load features ranking information
-file_ranking = open("exp_result/ranking_con_Ref2.csv","rb")
+file_ranking = open("../features_ranking/data/ranking_con_Ref2.csv","rb")
 reader = csv.reader(file_ranking)
 lines = [line for line in reader]
 features_ordered = {lines[i][3]:i-1 for i in range(1,len(lines))}
@@ -64,21 +59,7 @@ for i in range(n_features-1):
 ##############################################################################
 # Method 2: Rank features and then remove redundancy
 ##############################################################################
-# Order features according to ranking
-features_ranked = range(n_features)
-for i in range(n_features):
-    features_ranked[features_rank[i]] = i 
-
-# Select features
-features_sel = [features_ranked[0]]
-for i in range(1,n_features):
-    flag = True
-    for j in range(len(features_sel)):
-        if mtr_nhsic[features_ranked[i],features_sel[j]] > thd:
-            flag = False
-            break
-    if flag == True:
-        features_sel.append(features_ranked[i])
+features_sel = remove_redundancy(features_rank,thd,mtr_nhsic)
 
 mtr_sim = np.zeros((len(features_sel),len(features_sel)))
 ii = 0
@@ -93,6 +74,7 @@ for i in range(n_features):
                 jj += 1
         ii += 1
         labels.append(features_name[i])
+
 # Draw the dendrogram according to linkage matrix
 fig = plt.figure(figsize=(20,20))
 mtr_lin = my_hierarchical_clustering(mtr_sim,method='complete')
@@ -100,9 +82,10 @@ tmp = copy.deepcopy(mtr_lin)
 for i in range(tmp.shape[0]):
     tmp[i,2] = 1-tmp[i,2]
 dend = dendrogram(tmp,labels=labels)
-plt.savefig('dendrogram_method_2.png')
+plt.savefig('data/dendrogram_method_2.png')
 
-file_remove_redundancy = open("remove_redundancy_method_2.csv","wb")
+# First record the features that have been kept
+file_remove_redundancy = open("data/remove_redundancy_method_2.csv","wb")
 file_writer = csv.writer(file_remove_redundancy)
 file_writer.writerow(["Selected Features"])
 file_writer.writerow(["Feature ID","Feature Name","Feature Rank"])
@@ -114,6 +97,7 @@ for i in range(n_features):
 for i in range(3):
     file_writer.writerow([''])
 
+# Then record features that are removed
 file_writer.writerow(["Removed Features"])
 file_writer.writerow(["Feature ID","Feature Name","Feature Rank"])
 
