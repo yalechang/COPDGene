@@ -86,8 +86,7 @@ while(len(bfs)>1):
         estimator = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
         estimator.fit(data_use)
         data_use_labels = estimator.labels_
-        score[i] = silhouette_score(data_use,data_use_labels,\
-                metric='euclidean')
+        score[i] = -estimator.inertia_
         t2 = time()
         print([i,t2-t1])
     for i in range(len(bfs)):
