@@ -10,7 +10,14 @@ import numpy as np
 from time import time
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import scale
+from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
+
+###################Parameter Setting##########################################
+# number of clusters in Kmeans
+K = 4
+
+##############################################################################
 
 t0 = time()
 # Load training set
@@ -61,8 +68,34 @@ n_instances,n_features = data.shape
 
 # Start with the full feature set 
 bfs = range(n_features)
-fs = [0]*n_features
+score_best = [0]*n_features
+features_rm = []
 
-
-while(len(bfs)>0):
+while(len(bfs)>1):
+    t0 = time()
+    # Candidate feature sets, each element is a feature set.
+    fs = [0]*len(bfs)
+    # Scores(Clustering Metric Value) for each feature set
+    score = [0]*len(bfs)
+    for i in range(len(bfs)):
+        t1 = time()
+        # i-th candidate feature sets
+        fs[i] = list(set(bfs)-set([bfs[i]]))
+        # Prepare dataset using i-th candidate feature sets
+        data_use = data[:,fs[i]]
+        estimator = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
+        estimator.fit(data_use)
+        data_use_labels = estimator.predict(data_use)
+        score[i] = silhouette_score(data_use,data_use_labels,\
+                metric='euclidean')
+        t2 = time()
+        print([i,t2-t1])
+    for i in range(len(bfs)):
+        if score[i] == max(score):
+            score_best[len(bfs)-1] = max(score)
+            features_rm.append(bfs[i])
+            bfs = fs[i]
+            break
+    t3 = time()
+    print([max(score),"RunningTime(s): ",(t3-t0)])
 
