@@ -40,12 +40,12 @@ def obtain_rank_use_score(features_name, features_importance):
             if features_name[i] == features_name_ranked[j]:
                 features_rank[i] = j
 
-    return features_rank,features_importance_ranked
+    return features_rank,features_name_ranked,features_importance_ranked
 
 
 if __name__ == "__main__":
     features_importance = [0.5,0.8,0.6,0.2,0.3]
     features_name = ['a','b','c','d','e']
-    features_rank, features_importance_ranked = \
+    features_rank, features_name_ranked, features_importance_ranked = \
             obtain_rank_use_score(features_name,features_importance)
 

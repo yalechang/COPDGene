@@ -46,6 +46,8 @@ n_interval = 0
 n_ordinal = 0
 
 # Store dataset that only contains 'binary', 'continuous' and 'interval'
+# We discard 'categorical' features in random forest because it's not easy to
+# encode 'categorical' features to apply random forest algorithm 
 data_use = []
 features_name_use = []
 features_type_use = []
@@ -208,7 +210,7 @@ for i in range(len(features_name_con)):
 assert flag == True
 
 # Remove redundancy for continuous features
-features_rank_con, features_importance_con_ranked = \
+features_rank_con,features_name_con_ranked,features_importance_con_ranked = \
         obtain_rank_use_score(features_name_con_1,features_importance_con)
 features_sel_con = remove_redundancy(features_rank_con,thd,mtr_nhsic_con)
 
@@ -224,7 +226,7 @@ for i in range(len(index_keep)):
         mtr_nhsic_dis_1[i,j] = mtr_nhsic_dis[index_keep[i],index_keep[j]]
 
 # Remove redundancy for discrete features
-features_rank_dis, features_importance_dis_ranked = \
+features_rank_dis, features_name_dis_ranked, features_importance_dis_ranked = \
         obtain_rank_use_score(features_name_dis_1,features_importance_dis)
 features_sel_dis = remove_redundancy(features_rank_dis,thd,mtr_nhsic_dis_1)
 
@@ -240,11 +242,17 @@ print features_sel_con[0:20]
 print features_sel_dis[0:20]
 
 # Write the ranked features into a csv file
+tmp_dict = {features_name_use[i]:features_type_use[i] for i in \
+        range(len(features_name_use))}
+features_rank,features_name_use_ranked,features_importance_ranked = \
+        obtain_rank_use_score(features_name_use,features_importance)
 file_result = open("data/features_importance.csv","wb")
 file_writer = csv.writer(file_result)
-file_writer.writerow(["Rank","Feature Name","Feature Score"])
+file_writer.writerow(["Rank","Feature Name","Feature Type","Feature Score"])
 for i in range(len(tp)):
-    file_writer.writerow([i+1,tp[i],features_importance[i]])
+    file_writer.writerow([i,features_name_use_ranked[i],\
+            tmp_dict[features_name_use_ranked[i]],\
+            features_importance_ranked[i]])
 file_result.close()
 
 # Construct Laplacian from similarity matrix
