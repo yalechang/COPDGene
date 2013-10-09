@@ -39,14 +39,19 @@ file_sel.close()
 assert set(features_name_con) == set(features_name_con_1)
 
 # Choose dataset to use according to features_sel_con
-# we have 'continuous' and 'interval' features in features_sel_con  
-data_con_use = np.zeros((data_con.shape[0],len(features_sel_con)))
-for j in range(len(features_sel_con)):
-    data_con_use[:,j] = data_con[:,features_sel_con[j]]
+# we have 'continuous' and 'interval' features in features_sel_con
+# Among these we only select continuous features, discard interval features
+data_con_use = []
+features_name_con_use = []
+for j in range(len(features_name_con)):
+    if j in features_sel_con and features_type_con[j] == 'continuous':
+        data_con_use.append(data_con[:,j])
+        features_name_con_use.append(features_name_con[j])
+data_con_use = np.array(data_con_use).T
 
 # Prepare reference dataset for continuous features
 # Random sample with replacement from data_train to form a reference dataset
-data_con_use_ref = np.zeros((data_con.shape[0],len(features_sel_con)))
+data_con_use_ref = np.zeros((data_con_use.shape[0],data_con_use.shape[1]))
 for j in range(data_con_use.shape[1]):
     tp_index = sample_wr(range(data_con_use_ref.shape[0]),data_con_use_ref.shape[0])
     for i in range(len(tp_index)):
