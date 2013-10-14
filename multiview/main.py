@@ -19,14 +19,17 @@ from array_maxmin import array_maxmin
 M = 4
 
 # number of clusters
-K = 4
+K = 6
+
+#choose 2d or 3d scatter plot
+kpca_num = 3
 
 # the method used:kmeans, gaussian, linear, euclidean
 # Nothe that 'euclidean' would make the program fail
 method_id = 'gaussian'
 
 # scale parameter for rbf in spectral clustering for samples
-sigma_rbf = 2.6
+sigma_rbf = 3.0
 
 pkl_file = open("data_gold.pkl","rb")
 data_gold = pickle.load(pkl_file)
@@ -36,6 +39,7 @@ for i in range(len(gold)):
     gold[i] = gold[i]-1
 pkl_file.close()
 n_samples,n_features = data.shape
+print [n_samples,n_features]
 
 pkl_file = open("matrix_hsic.pkl","rb")
 matrix_hsic = pickle.load(pkl_file)
@@ -47,16 +51,31 @@ print labels_predict
 plt.figure(0)
 draw_similarity_matrix(matrix_hsic,labels_predict,M)
 
-"""
-if labels_predict[0] == 0:
-    print ['figure 1: whole','figure 2: emphysema','figure 3: airway']
-else:
-    print ['figure 1: whole','figure 2: airway','figure 3:emphysema']
+
+# id_airway is the cluster id of 'WallAreaPct_seg'
+# id_emphysema is the cluster id of 'pctEmph'
+id_airway = labels_predict[13]
+id_emphysema = labels_predict[10]
+
+# id_score is the cluster id of Feature Set 2
+# id_fev1 is the cluster id of Feature Set 3
+id_score = labels_predict[6]
+id_fev1 = labels_predict[21]
 
 #the length of two feature sets
-len_fs1 = sum(labels_predict)
-len_fs2 = len(labels_predict)-len_fs1
-#print len_fs1,len_fs2
+#len_fs1 is the length of score feature sets
+#len_fs2 is the length of FEV1_FVC feature sets
+len_fs1 = 0
+len_fs2 = 0
+for i in range(len(labels_predict)):
+    if labels_predict[i] ==id_score:
+        len_fs1 = len_fs1+1
+    if labels_predict[i] == id_fev1:
+        len_fs2 = len_fs2+1
+print len_fs1,len_fs2
+
+#print "[Figure1: all features; Figure2: airway; Figure 3: emphysema]"
+print "[Figure1: all features; Figure2: score; Figure 3: FEV1_FVC]"
 
 #the data of two feature sets
 data_fs1 = np.zeros((n_samples,len_fs1))
@@ -65,11 +84,11 @@ index_fs1 = 0
 index_fs2 = 0
 
 for j in range(n_features):
-    if labels_predict[j] == 1:
+    if labels_predict[j] == id_score:
         for i in range(n_samples):
             data_fs1[i,index_fs1] = data[i,j]
         index_fs1 = index_fs1+1
-    else:
+    if labels_predict[j] == id_fev1:
         for i in range(n_samples):
             data_fs2[i,index_fs2] = data[i,j]
         index_fs2 = index_fs2+1
@@ -150,7 +169,7 @@ else:
         affinity_fs1 = -euclidean_distances(data_fs1,data_fs1)
         affinity_fs2 = -euclidean_distances(data_fs2,data_fs2)
     else:
-        print "Error input for method_id"
+        print "========Error input for method_id======"
     
     # spectral clustering result:
     clf_0 = SpectralClustering(n_clusters=K,affinity='precomputed')
@@ -185,40 +204,52 @@ print nmi_0,nmi_1,nmi_2
 
 
 #PCA
-kpca_num = 3
 gamma = 1.0/(2*sigma_rbf**2)
 degree = 3
+color = ['b','r','g','m','y','k']
 
-
-kpca_0 = KernelPCA(n_components=kpca_num,kernel='rbf',gamma=gamma,degree=degree)
+kpca_0 = KernelPCA(n_components=kpca_num,kernel='rbf',gamma=gamma
+                   ,degree=degree)
 kpca_0.fit(data)
 kpca_data = kpca_0.fit_transform(data)
 fig = plt.figure(4)
 if kpca_num == 2:
-    plt.scatter(kpca_data[:,0],kpca_data[:,1],c='b',marker='o')
+    for i in range(len(labels_predict)):
+        plt.scatter(kpca_data[i,0],kpca_data[i,1],c=color[labels_predict[i]]
+                    ,marker='o')
 else:
     ax = fig.add_subplot(111,projection='3d')
-    ax.scatter(kpca_data[:,0],kpca_data[:,1],kpca_data[:,2],c='b')
-
+    for i in range(len(labels_predict)):
+        ax.scatter(kpca_data[i,0],kpca_data[i,1],kpca_data[i,2]
+                   ,c=color[labels_predict[i]],marker='o')
+       
 kpca_1 = KernelPCA(n_components=kpca_num,kernel='rbf',gamma=gamma,degree=degree)
 kpca_1.fit(data_fs1)
 kpca_data_fs1 = kpca_1.transform(data_fs1)
 fig = plt.figure(5)
 if kpca_num == 2:
-    plt.scatter(kpca_data_fs1[:,0],kpca_data_fs1[:,1],c='b',marker='o')
+    for i in range(len(labels_fs1_predict)):
+        plt.scatter(kpca_data_fs1[i,0],kpca_data_fs1[i,1]
+                    ,c=color[labels_fs1_predict[i]],marker='o')
 else:
     ax = fig.add_subplot(111,projection='3d')
-    ax.scatter(kpca_data_fs1[:,0],kpca_data_fs1[:,1],kpca_data_fs1[:,2],c='b')
+    for i in range(len(labels_fs1_predict)):
+        ax.scatter(kpca_data_fs1[i,0],kpca_data_fs1[i,1],kpca_data_fs1[i,2]
+                   ,c=color[labels_fs1_predict[i]],marker='o') 
 
 kpca_2 = KernelPCA(n_components=kpca_num,kernel='rbf',gamma=gamma,degree=degree)
 kpca_2.fit(data_fs2)
 kpca_data_fs2 = kpca_2.transform(data_fs2)
 fig = plt.figure(6)
 if kpca_num == 2:
-    plt.scatter(kpca_data_fs2[:,0],kpca_data_fs2[:,1],c='b',marker='o')
+    for i in range(len(labels_fs2_predict)):
+        plt.scatter(kpca_data_fs2[i,0],kpca_data_fs2[i,1]
+                    ,c=color[labels_fs2_predict[i]],marker='o')
 else:
     ax = fig.add_subplot(111,projection='3d')
-    ax.scatter(kpca_data_fs2[:,0],kpca_data_fs2[:,1],kpca_data_fs2[:,2],c='b')
-"""
+    for i in range(len(labels_fs2_predict)):
+        ax.scatter(kpca_data_fs2[i,0],kpca_data_fs2[i,1],kpca_data_fs2[i,2]
+                   ,c=color[labels_fs2_predict[i]],marker='o')
+
 plt.show()
 
