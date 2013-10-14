@@ -5,9 +5,9 @@ import pickle
 from time import time
 #from scipy.io import savemat
 
-from read_copdgene_data import read_copdgene_data
-from parse_copdgene_data import parse_copdgene_data
-from hsic import hsic
+from python.COPDGene.utils.read_copdgene_data import read_copdgene_data
+from python.COPDGene.utils.parse_copdgene_data import parse_copdgene_data
+from python.COPDGene.utils.hsic import hsic
 
 t0 = time()
 
@@ -19,7 +19,7 @@ M = 2
 sigma_hsic = 1.0
 
 # Read original data from the file, there may be missing data
-filename = "Training.csv"
+filename = "/home/changyale/dataset/COPDGene/Training.csv"
 [data_raw,features,case_ids] = read_copdgene_data(filename)
 
 # Select the data of interest

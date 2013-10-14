@@ -6,13 +6,13 @@ from sklearn.cluster import SpectralClustering
 from sklearn.metrics.cluster.supervised import normalized_mutual_info_score
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.metrics.pairwise import euclidean_distances
-from draw_similarity_matrix import draw_similarity_matrix
+from python.COPDGene.utils.draw_similarity_matrix import draw_similarity_matrix
 import matplotlib.pyplot as plt
 import pylab as pl
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA,KernelPCA
 
-from array_maxmin import array_maxmin
+from python.COPDGene.utils.array_maxmin import array_maxmin
 # from nmi_revised import nmi_revised
 
 # number of sets of features
