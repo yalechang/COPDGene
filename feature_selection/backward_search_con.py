@@ -71,6 +71,7 @@ for j in range(len(features_sel_dis)):
 t1 = time()
 print(["Preparing data takes "+str(t1-t0)+" seconds"])
 
+"""
 ## Backward search for continuous features
 # Normalization of the continuous dataset
 data = scale(data_con_use)
@@ -108,3 +109,4 @@ while(len(bfs)>1):
             break
     t3 = time()
     print([max(score),features_rm,"RunningTime(s): ",(t3-t0)])
+"""
