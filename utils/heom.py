@@ -1,5 +1,5 @@
 def heom(data,features_type,val_max_col,val_min_col,m,n):
-    from is_number import is_number
+    from python.COPDGene.utils.is_number import is_number
     """This function computes Heterogeneous Euclidean Overlap Metric distance
     between m-th sample and n-th sample in a given dataset
 
