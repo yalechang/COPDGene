@@ -233,9 +233,13 @@ if __name__ == "__main__":
     #print n_missing,percent
 
     # Save a pickle file of dataset containing only included features
-    #pickle.dump([data,features_name_include,features_type_include],\
-    #        open("data_include.pkl","wb"))
-    
+    file_include = open("/home/changyale/dataset/COPDGene/data_include.pkl",\
+            "wb")
+    pickle.dump([data,features_name_include,features_type_include],\
+            file_include)
+    file_include.close()
+
+    """ 
     # Specify the method to use
     #==================================================================
     method = 'mean'
@@ -302,4 +306,4 @@ if __name__ == "__main__":
                 print "ERROR: STILL HAVE MISSING VALUES"
                 print j
                 break
-
+    """

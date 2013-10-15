@@ -12,10 +12,10 @@ def heom(data,features_type,val_max_col,val_min_col,m,n):
         list containing types of all the features, the values should fall into
         the set ['binary','categorical','interval','continuous']
     
-    val_max_col: float
+    val_max_col: list of floats
         max value for each column
 
-    val_min_col: float
+    val_min_col: list of floats
         min value for each column
     
     m: int
@@ -36,7 +36,7 @@ def heom(data,features_type,val_max_col,val_min_col,m,n):
     for j in range(n_features):
         if data[m,j] == '' or data[n,j] == '':
             dist_temp[j] = 1.
-        elif features_type[j] in ['binary','categorical']:
+        elif features_type[j] in ['binary','categorical','ordinal']:
             if data[m,j] == data[n,j]:
                 dist_temp[j] = 0.
             else:
@@ -124,9 +124,11 @@ if __name__ == "__main__":
     import csv
 
     t0 = time()
-    data,features_name,features_type = \
-            pickle.load(open("data_include.pkl","rb"))
-    """
+    file_include = open("/home/changyale/dataset/COPDGene/data_include.pkl",\
+            "rb")
+    data,features_name,features_type = pickle.load(file_include)
+    file_include.close()
+    
     mtr_heom = heom_array(data,features_type)
     n_instances,n_features = data.shape
     
@@ -139,7 +141,7 @@ if __name__ == "__main__":
 
     t1 = time()
     print(["Running Time(min)",(t1-t0)/60])
-    """
+    
     n_instances,n_features = data.shape
     n_missing = [0]*n_instances
     for i in range(n_instances):
