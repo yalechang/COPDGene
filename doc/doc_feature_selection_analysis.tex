@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+
+% Doc info
+\title{\textbf{Feature Selection Analysis}}
+\author{Yale Chang}
+\date{}
+\begin{document}
+
+\maketitle
+
+\section{Skewed Variables in Backward Search}
+The feature list obtained from backward search is not ideal in that features such as `FRCpred\_race\_adjusted',`TLCpred\_race\_adjusted',`Height' are kept till last. We suspect these might be the so-called skewed variables, which could result in imbalanced clusters. We need to test if our hypothesis is true by looking at sample labels by clustering using those features.
+% Make tables
+\begin{table}[ht]
+\caption{Distribution of Sample labels}
+\centering
+\begin{tabular}{c c c c c}
+\hline\hline
+Feature & Cluster 0 & Cluster 1 & Cluster 2 & Cluster 3\\[1ex]
+\hline
+FRCpred\_race\_adjusted & 1127 & 1087 & 1187 &1012\\
+TLCpred\_race\_adjusted & 1155 & 1030 & 1126 &1102\\
+Use two features above & 1066 & 1122 & 1174 &1051\\
+Height & 1223 & 1445 & 910 & 835\\[1ex]
+\hline
+\end{tabular}
+\label{table:dist_cluster_labels}
+\end{table}  
+\\
+It seems that clusters are quite balanced. 
+
+\end{document}

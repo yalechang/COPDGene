@@ -239,15 +239,14 @@ if __name__ == "__main__":
             file_include)
     file_include.close()
 
-    """ 
     # Specify the method to use
     #==================================================================
-    method = 'mean'
+    method = 'knn'
     #==================================================================
 
     # Imputation use chosen imputation algorithm
     tp_data = imputation_algorithm(data,features_type_include,\
-            algorithm=method)
+            algorithm=method,k_knn=5)
 
     # Merge 'OthFind_Bronchiectasis' and 'HighConcerns_Bronchiec' since they
     # don't overlap entirely. These two features are both binary features, we
@@ -306,4 +305,3 @@ if __name__ == "__main__":
                 print "ERROR: STILL HAVE MISSING VALUES"
                 print j
                 break
-    """
