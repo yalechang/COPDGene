@@ -155,7 +155,7 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
                         if data[k,loc_missing[j]] in ['',None]:
                             flag = True
                             break
-                        
+                     
                     # There're no missing values in k-th sample at attributes
                     # to be imputed of i-th sample
                     if flag == False:
@@ -167,16 +167,16 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
                 assert k_knn < len(dist_heom)  
                 knn = k_knn
                 print "#Neighbors",len(dist_heom)
-                dist_heom,row_dist_heom = sorting_top(dist_heom,knn)
+                top_dist_heom,top_row_dist_heom = sorting_top(dist_heom,knn)
                 
                 # Impute missing values using neighbors
                 for j in range(len(loc_missing)):
                     if features_type[loc_missing[j]] in ['binary','categorical','ordinal']:
                         weights = range(knn)
                         for k in range(knn):
-                            if dist_heom[knn-1] != dist_heom[0]:
-                                weights[k] = (dist_heom[knn-1]-dist_heom[k])/\
-                                        (dist_heom[knn-1]-dist_heom[0])
+                            if top_dist_heom[knn-1] != top_dist_heom[0]:
+                                weights[k] = (top_dist_heom[knn-1]-top_dist_heom[k])/\
+                                        (top_dist_heom[knn-1]-top_dist_heom[0])
                             else:
                                 weights[k] = 1
                         max_weights = max(weights)
@@ -189,16 +189,16 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
                         weights = range(knn)
                         temp_sum = 0
                         for k in range(knn):
-                            weights[k] = 1./(dist_heom[k]**2)
-                            if is_number(data[row_dist_heom[k],\
+                            weights[k] = 1./(top_dist_heom[k]**2)
+                            if is_number(data[top_row_dist_heom[k],\
                                     loc_missing[j]]):
                                 temp_sum += weights[k]*\
-                                        float(data[row_dist_heom[k],\
+                                        float(data[top_row_dist_heom[k],\
                                         loc_missing[j]])
                             else:
-                                print "ERROR:",row_dist_heom[k],\
+                                print "ERROR:",top_row_dist_heom[k],\
                                         loc_missing[j],\
-                                        data[row_dist_heom[k],loc_missing[j]]
+                                        data[top_row_dist_heom[k],loc_missing[j]]
                         dataset[i,loc_missing[j]] = temp_sum/knn
 
     # if the input algorithm is not based on mean/mode 
