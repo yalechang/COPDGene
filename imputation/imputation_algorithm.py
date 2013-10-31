@@ -24,6 +24,7 @@ from python.COPDGene.utils.heom import heom
 from python.COPDGene.utils.heom import heom_array
 from time import time
 from python.COPDGene.utils.sorting_top import sorting_top
+from python.COPDGene.utils.is_number import is_number
 import pickle
 import csv
 import copy
@@ -109,13 +110,24 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
     # IMPUTATION using KNN
     elif algorithm == 'knn':
         t0 = time()
+         # Rank values in dist_heom, find the first K smallest values
+        assert len(kwargs.keys()) == 1
+        # The number of nearest neighbors
+        tmp = kwargs.keys()[0]
+        k_knn = kwargs[tmp]
+        print "k_knn: ",k_knn
 
         # Load the array containing pairwise HEOM distance
-        # To save space we could store the array using a list of lists
+        # store the result in a matrix
+        mtr_heom = np.zeros((n_instances,n_instances)) 
         csvfile = open("mtr_heom.csv","rb")
         reader = csv.reader(csvfile)
-        mtr_heom = [line for line in reader]
+        index = 0
+        for line in reader:
+            mtr_heom[index,:] = line
+            index += 1
         csvfile.close()
+        print("Reading of HEOM distance matrix finished")
 
         for i in range(n_instances):
             # Location of missing values
@@ -127,8 +139,10 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
             # Compute HEOM distance between samples with missing values and its
             # KNN that don't have missing values at attributes to be imputed
             if len(loc_missing)>0:
+                raw_input("Press any Key:")
                 print(["Sample Number:"+str(i),"Time:"+str((time()-t0)/60)])
                 print(["Number of Missing Values:",len(loc_missing)])
+
                 # HEOM distance between i-th sample and other samples
                 dist_heom = []
                 # row number of samples corresponding to values in dist_heom
@@ -145,45 +159,47 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
                     # There're no missing values in k-th sample at attributes
                     # to be imputed of i-th sample
                     if flag == False:
-                        dist_heom.append(mtr_heom[i][k])
+                        dist_heom.append(mtr_heom[i,k])
                         row_dist_heom.append(k)
-
-                # Rank values in dist_heom, find the first K smallest values
-                assert len(kwargs.keys()) == 1
-                # The number of nearest neighbors
-                k_knn = kwargs.keys()[0]
+                
                 # If the number of neighbors is less than k_knn,then imputation
                 # using mean/mode of the whole column
-                knn = min(k_knn,len(dist_heom))
-                if k_knn>len(dist_heom):
-                    print i,len(dist_heom),"#neighbors<k_knn"
-                else:
-                    print i,len(dist_heom)
-                    dist_heom,row_dist_heom = sorting_top(dist_heom,knn)
-                    # Impute missing values using neighbors
-                    for j in range(len(loc_missing)):
-                        if features_type[loc_missing[j]] in ['binary','categorical','ordinal']:
-                            weights = range(knn)
-                            for k in range(knn):
-                                if dist_heom[knn-1] != dist_heom[0]:
-                                    weights[k] = (dist_heom[knn-1]-dist_heom[k])/\
-                                            (dist_heom[knn-1]-dist_heom[0])
-                                else:
-                                    weights[k] = 1
-                            max_weights = max(weights)
-                            for k in range(knn):
-                                if max_weights == weights[k]:
-                                    dataset[i,loc_missing[j]] = \
-                                            data[row_dist_heom[k],loc_missing[j]]
+                assert k_knn < len(dist_heom)  
+                knn = k_knn
+                print "#Neighbors",len(dist_heom)
+                dist_heom,row_dist_heom = sorting_top(dist_heom,knn)
+                
+                # Impute missing values using neighbors
+                for j in range(len(loc_missing)):
+                    if features_type[loc_missing[j]] in ['binary','categorical','ordinal']:
+                        weights = range(knn)
+                        for k in range(knn):
+                            if dist_heom[knn-1] != dist_heom[0]:
+                                weights[k] = (dist_heom[knn-1]-dist_heom[k])/\
+                                        (dist_heom[knn-1]-dist_heom[0])
+                            else:
+                                weights[k] = 1
+                        max_weights = max(weights)
+                        for k in range(knn):
+                            if max_weights == weights[k]:
+                                dataset[i,loc_missing[j]] = \
+                                        data[row_dist_heom[k],loc_missing[j]]
 
-                        if features_type[loc_missing[j]] in ['interval','continuous']:
-                            weights = range(knn)
-                            temp_sum = 0
-                            for k in range(knn):
-                                weights[k] = 1./(dist_heom[k]**2)
-                                temp_sum += weights[k]*float(data[row_dist_heom[k],\
+                    if features_type[loc_missing[j]] in ['interval','continuous']:
+                        weights = range(knn)
+                        temp_sum = 0
+                        for k in range(knn):
+                            weights[k] = 1./(dist_heom[k]**2)
+                            if is_number(data[row_dist_heom[k],\
+                                    loc_missing[j]]):
+                                temp_sum += weights[k]*\
+                                        float(data[row_dist_heom[k],\
                                         loc_missing[j]])
-                            dataset[i,loc_missing[j]] = temp_sum/knn
+                            else:
+                                print "ERROR:",row_dist_heom[k],\
+                                        loc_missing[j],\
+                                        data[row_dist_heom[k],loc_missing[j]]
+                        dataset[i,loc_missing[j]] = temp_sum/knn
 
     # if the input algorithm is not based on mean/mode 
     else:
@@ -194,16 +210,20 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
 if __name__ == "__main__":
     import pickle
     import csv
+    
+    file_data = open("data_imputation_questionnaire.pkl","rb")
+    data_features,features_type = pickle.load(file_data)
+    file_data.close()
 
-    data_features,features_type = \
-            pickle.load(open("data_imputation_questionnaire.pkl","rb"))
     n_instances,n_features = data_features.shape
     features_name = data_features[0,:]
     data_whole = data_features[1:n_instances,:]
     n_instances,n_features = data_whole.shape
     
-    tp1,tp2,tp3,tp4,features_include = \
-            pickle.load(open("info_missing_type_include.pickle","rb"))
+    file_data = open("info_missing_type_include.pickle","rb")
+    tp1,tp2,tp3,tp4,features_include = pickle.load(file_data)
+    file_data.close()
+
     for i in range(len(tp1)):
         assert tp1[i] == features_name[i]
    

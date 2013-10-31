@@ -17,7 +17,8 @@ Final10000_DataDictionary_12MAR13_MH_PJC_Annotation_June2013.csv:
 Outputs:
 --------
 data_imputation_questionnaire.pkl:
-    python pickle file containing the dataset after imputation
+    python pickle file containing the dataset after imputation according to the
+    questionnaries
 
 features_imputation_questionnaire.csv
     csv file containing information of the remaining features after imputation
