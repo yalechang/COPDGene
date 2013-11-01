@@ -28,6 +28,7 @@ from python.COPDGene.utils.is_number import is_number
 import pickle
 import csv
 import copy
+import math
 
 def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
     """ This function implement various imputation algorithms
@@ -134,41 +135,46 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
             loc_missing = []
             # Find location of missing values for i-th sample
             for j in range(n_features):
-                if data[i,j] in ['',None]:
+                if data[i,j] == '':
                     loc_missing.append(j)
             # Compute HEOM distance between samples with missing values and its
             # KNN that don't have missing values at attributes to be imputed
             if len(loc_missing)>0:
-                raw_input("Press any Key:")
-                print(["Sample Number:"+str(i),"Time:"+str((time()-t0)/60)])
-                print(["Number of Missing Values:",len(loc_missing)])
+                #raw_input("Press any Key:")
+                print(["id: "+str(i),"missing: ",loc_missing])
 
                 # HEOM distance between i-th sample and other samples
                 dist_heom = []
                 # row number of samples corresponding to values in dist_heom
                 row_dist_heom = []
+
                 for k in range(n_instances):
                     # flag indicating if there're missing values in k-th 
                     # sample at attributes to be imputed
-                    flag = False
+                    flag = True
                     for j in range(len(loc_missing)):
-                        if data[k,loc_missing[j]] in ['',None]:
-                            flag = True
-                            break
-                     
+                        if data[k,loc_missing[j]] == '':
+                            flag = False
+
                     # There're no missing values in k-th sample at attributes
                     # to be imputed of i-th sample
-                    if flag == False:
+                    if flag == True:
                         dist_heom.append(mtr_heom[i,k])
                         row_dist_heom.append(k)
-                
+
                 # If the number of neighbors is less than k_knn,then imputation
                 # using mean/mode of the whole column
                 assert k_knn < len(dist_heom)  
                 knn = k_knn
                 print "#Neighbors",len(dist_heom)
-                top_dist_heom,top_row_dist_heom = sorting_top(dist_heom,knn)
-                
+
+                # Find knn samples that are nearest to sample i
+                # Note that the range of tmp is between knn
+                top_dist_heom,tmp = sorting_top(dist_heom,knn)
+                top_row_dist_heom = [0]*len(tmp)
+                for j in range(len(tmp)):
+                    top_row_dist_heom[j] = row_dist_heom[tmp[j]]
+
                 # Impute missing values using neighbors
                 for j in range(len(loc_missing)):
                     if features_type[loc_missing[j]] in ['binary','categorical','ordinal']:
@@ -186,20 +192,21 @@ def imputation_algorithm(data,features_type,algorithm='mean',**kwargs):
                                         data[row_dist_heom[k],loc_missing[j]]
 
                     if features_type[loc_missing[j]] in ['interval','continuous']:
-                        weights = range(knn)
                         temp_sum = 0
                         for k in range(knn):
-                            weights[k] = 1./(top_dist_heom[k]**2)
-                            if is_number(data[top_row_dist_heom[k],\
-                                    loc_missing[j]]):
-                                temp_sum += weights[k]*\
-                                        float(data[top_row_dist_heom[k],\
-                                        loc_missing[j]])
+                            assert is_number(data[top_row_dist_heom[k],\
+                                    loc_missing[j]])
+                            temp_sum += float(data[top_row_dist_heom[k],\
+                                    loc_missing[j]])
+                        if features_type[loc_missing[j]] == 'continuous':
+                            dataset[i,loc_missing[j]] = temp_sum/knn
+                        else:
+                            if temp_sum/knn-math.floor(temp_sum/knn)<=0.4:
+                                dataset[i,loc_missing[j]] = \
+                                        math.floor(temp_sum/knn)
                             else:
-                                print "ERROR:",top_row_dist_heom[k],\
-                                        loc_missing[j],\
-                                        data[top_row_dist_heom[k],loc_missing[j]]
-                        dataset[i,loc_missing[j]] = temp_sum/knn
+                                dataset[i,loc_missing[j]] = \
+                                        math.floor(temp_sum/knn)+1
 
     # if the input algorithm is not based on mean/mode 
     else:
@@ -217,6 +224,7 @@ if __name__ == "__main__":
 
     n_instances,n_features = data_features.shape
     features_name = data_features[0,:]
+    case_ids = data_features[1:data_features.shape[0],0]
     data_whole = data_features[1:n_instances,:]
     n_instances,n_features = data_whole.shape
     
@@ -316,8 +324,9 @@ if __name__ == "__main__":
     file_writer = csv.writer(result)
     file_writer.writerow(["Features Type"]+features_type_include)
     file_writer.writerow(["Features Name"]+list(features_name_include))
+    assert len(case_ids) == n_instances
     for i in range(n_instances):
-        file_writer.writerow([i]+list(dataset[i,:]))
+        file_writer.writerow([case_ids[i]]+list(dataset[i,:]))
     # Test whether there're any missing values
     for j in range(n_features-1):
         for i in range(n_instances):
