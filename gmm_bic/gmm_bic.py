@@ -56,13 +56,13 @@ n_instances, n_features = data.shape
 data_ref = scale(data_con_use_ref)
 
 # feature set
-fs = [37,35]
+fs = [37]
 
 # Choose dataset to use according to feature set
 data_use = data[:,fs]
 
 # Choose method to use: 'gmm' or 'dpgmm'
-method = 'gmm'
+method = 'dpgmm'
 
 if method == 'gmm':
     # Apply GMM and BIC to automatically find the number of clusters
