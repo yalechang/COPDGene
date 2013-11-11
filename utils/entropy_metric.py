@@ -6,16 +6,12 @@ def entropy_metric(data, beta=10., mu=0.5):
     row_sums = tmp.sum(axis=1)
     mtr_distance = tmp*1./row_sums[:,np.newaxis]
     assert mtr_distance.shape[0] == data.shape[0]
-    entropy = 0.
-    for i in range(data.shape[0]-1):
-        for j in range(i+1,data.shape[0]):
-            if mtr_distance[i,j]<mu:
-                entropy += (np.exp(beta*mtr_distance[i,j])-1.)/\
-                        (np.exp(beta*mu)-1.)
-            else:
-                entropy += (np.exp(beta*(1.-mtr_distance[i,j]))-1.)/\
-                        (np.exp(beta*(1.-mu))-1.)
-    return entropy
+    entropy_1 = (np.exp(beta*mtr_distance)-1.)/(np.exp(beta*mu)-1.);
+    entropy_2 = (np.exp(beta*(1.-mtr_distance))-1.)/(np.exp(beta*(1.-mu))-1.)
+    tp_1 = mtr_distance<mu
+    entropy = entropy_1*tp_1+entropy_2*(1-tp_1)
+
+    return np.sum(entropy)
 
 def entropy_metric_original(data):
     tmp = euclidean_distances(data)
@@ -50,6 +46,6 @@ if __name__ == "__main__":
                        [1.,0.9],
                        [0.9,1.],
                        [0.9,0.9]])
-    entropy_1 = entropy_metric_1(data_1)
-    entropy_2 = entropy_metric_1(data_2)
+    entropy_1 = entropy_metric(data_1)
+    entropy_2 = entropy_metric(data_2)
     print entropy_1,entropy_2

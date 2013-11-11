@@ -7,7 +7,7 @@ import pickle
 import numpy as np
 from time import time
 from sklearn.preprocessing import scale
-from python.COPDGene.utils.entropy_metric import entropy_metric_1
+from python.COPDGene.utils.entropy_metric import entropy_metric
 
 t0 = time()
 # Load training set
@@ -52,7 +52,7 @@ while(len(bfs)<=n_features):
         else:
             fs[i] = bfs+[i]
             data_use = data[:,fs[i]]
-            score[i] = entropy_metric_1(data_use)
+            score[i] = entropy_metric(data_use)
             t2 = time()
             print([i,t2-t1])
     for i in range(n_features):
