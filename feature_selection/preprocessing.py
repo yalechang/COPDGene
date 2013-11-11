@@ -1,7 +1,7 @@
 """
 Parameters
 ----------
-dataset_complete_mean.pkl: containing all the information about the dataset
+dataset_complete_knn.pkl: containing all the information about the dataset
 after imputation, including the following:
     1) dataset: array, shape(8760, 211)
     2) features_name: list, len(210) <'RandomGroupCode' is removed>
@@ -29,7 +29,7 @@ import numpy as np
 import pickle
 
 # Read into dataset
-file_dataset = open("/home/changyale/dataset/COPDGene/dataset_complete_mean.pkl","rb")
+file_dataset = open("/home/changyale/dataset/COPDGene/dataset_complete_knn.pkl","rb")
 dataset,features_name,features_type = pickle.load(file_dataset)
 file_dataset.close()
 n_instances,n_features = dataset.shape

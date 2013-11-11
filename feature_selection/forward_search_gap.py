@@ -59,7 +59,6 @@ bfs = []
 # Silhouette score for original dataset and reference dataset using the same
 # set of features
 score_best = [0]*n_features
-score_best_ref = [0]*n_features
 features_add = []
 score = range(n_features)
 fs = range(n_features)
@@ -73,29 +72,33 @@ while(len(bfs)<=n_features):
             fs[i] = bfs
         else:
             fs[i] = bfs+[i]
+            
+            # Candidate from original dataset
             data_use = data[:,fs[i]]
-            estimator = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
-            estimator.fit(data_use)
-            data_use_labels = estimator.labels_
-            score[i] = silhouette_score(data_use,data_use_labels,\
+            estimator_1 = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
+            estimator_1.fit(data_use)
+            data_use_labels = estimator_1.labels_
+            
+            # Candiate from reference dataset
+            data_ref_use = data_ref[:,fs[i]]
+            estimator_2 = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
+            estimator_2.fit(data_ref_use)
+            data_ref_use_labels = estimator_2.labels_
+            
+            # Compute the gap statistic
+            score_1 = silhouette_score(data_use,data_use_labels,\
                     metric='euclidean')
+            score_2 = silhouette_score(data_ref_use,data_ref_use_labels,\
+                    metric='euclidean')
+            score[i] = score_1-score_2
             t2 = time()
             print([i,t2-t1])
     for i in range(n_features):
         if score[i] == max(score):
             score_best[len(bfs)-1] = max(score)
-            # Compute Silhouette for reference data using the same set of
-            # features
-            data_ref_use = data_ref[:,fs[i]]
-            estimator_0 = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
-            estimator_0.fit(data_ref_use)
-            data_ref_use_labels = estimator_0.labels_
-            score_best_ref[len(bfs)-1] = silhouette_score(data_ref_use,\
-                    data_ref_use_labels,metric='euclidean')
             features_add.append(i)
             bfs = fs[i]
             break
     t3 = time()
-    print([score_best[len(bfs)],score_best_ref[len(bfs)],features_add,\
-            "RunningTime(s): ",(t3-t0)])
+    print([score_best[len(bfs)],features_add,"RunningTime(s): ",(t3-t0)])
 
