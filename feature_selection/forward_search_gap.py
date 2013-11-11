@@ -95,10 +95,10 @@ while(len(bfs)<=n_features):
             print([i,t2-t1])
     for i in range(n_features):
         if score[i] == max(score):
-            score_best[len(bfs)-1] = max(score)
+            score_best[len(bfs)] = max(score)
             features_add.append(i)
             bfs = fs[i]
             break
     t3 = time()
-    print([score_best[len(bfs)],features_add,"RunningTime(s): ",(t3-t0)])
+    print([score_best[len(bfs)-1],features_add,"RunningTime(s): ",(t3-t0)])
 
