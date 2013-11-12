@@ -18,5 +18,5 @@ for i in range(len(features_add)):
 plt.figure()
 plt.plot(range(1,53),score_best)
 plt.xlabel("The Number of Features")
-plt.title("Forward Search With GAP Statistic")
+plt.title("Forward Search With GAP Statistic and Supervision")
 plt.show()

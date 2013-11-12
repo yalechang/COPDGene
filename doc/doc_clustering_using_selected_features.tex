@@ -71,14 +71,39 @@ Cluster 4 & 10 & 23 & 155 & 219 & 110 & 1 & 518\\
 \#/GOLD & 2000 & 351 & 833 & 504 & 257 & 468\\[1ex]
 \hline
 \end{tabular}
-\label{table:dist_cluster_labels_gold_1}
+\label{table:dist_cluster_labels_gold_2}
 \end{table}
 
 % Forward Search with Supervision
 \section{Forward Search with Supervision}
 Since forward search is quite sensitive to the first few selected features, we can add supervision by including \textbf{`FEV1pp\_utah'} and \textbf{`FEV1\_FVC\_utah'} in the selected feature set. Then we apply forward search for the remaining features. In the end, the selected features are:\\
 \\
-\{
-\}
+\{35,`FEV1pp\_utah';\\
+37,`FEV1\_FVC\_utah';\\
+36,`FVCpp\_utah';\\
+45,`pre\_FEV1\_FVC';\\
+24,`UpperThird\_LowerThird\_Slicer';\\
+41,`FEF2575\_utah';\\
+47,`pre\_FEF2575';\\
+42,`pre\_FEV1';\\
+18,`Exp\_Below856\_Slicer';\}\\
+Set $K=4$ and use K-Means for clustering, we can get:\\
+\begin{table}[ht]
+\caption{Distribution of Labels w.r.t GOLD}
+\centering
+\begin{tabular}{c c c c c c c|c}
+\hline\hline
+Label\textbackslash GOLD & GOLD 0 & GOLD 1 & GOLD 2 & GOLD 3 & GOLD 4 & GOLD U & \#/Cluster\\[1ex]
+\hline
+Cluster 1 & 1 & 0 & 90 & 424 & 257 & 0 & 772\\
+Cluster 2 & 80 & 109 & 695 & 80 & 0 & 184 & 1148\\
+Cluster 3 & 841 & 11 & 0 & 0 & 0 & 16 & 868\\
+Cluster 4 & 1078 & 231 & 48 & 0 & 0 & 268 & 1625\\
+\hline
+\#/GOLD & 2000 & 351 & 833 & 504 & 257 & 468\\[1ex]
+\hline
+\end{tabular}
+\label{table:dist_cluster_labels_gold_3}
+\end{table}
 
 \end{document}
