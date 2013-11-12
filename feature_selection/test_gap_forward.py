@@ -1,7 +1,7 @@
 import csv
 import matplotlib.pyplot as plt
 
-file_sel = open("data/features_sel_forward_gap.csv","wb")
+file_sel = open("data/features_sel_forward_gap_run_2.csv","wb")
 file_writer = csv.writer(file_sel)
 
 file_writer.writerow(["Loop Index","GAP Value","Added Feature Index",\

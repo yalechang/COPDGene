@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+
+% Doc info
+\title{\textbf{Clustering Using Selected Features}}
+\author{Yale Chang}
+\date{}
+\begin{document}
+
+\maketitle
+
+% Forward Search
+\section{Forward Search}
+After forward search with GAP statistic, we obtain the following feature set:\\
+\\
+\{21,`pctEmph\_UpperThird\_Slicer';\\
+4,`SGRQ\_scoreActive';\\
+6,`SGRQ\_scoreTotal';\\
+8,`pctEmph\_Slicer';\\
+5,`SGRQ\_scoreImpact';\\
+16,`Exp\_Below950\_Slicer';\\
+9,`Insp\_Below950\_Slicer';\\
+22,`pctEmph\_LowerThird\_Slicer';\\
+17,`Exp\_Below910\_Slicer';\}\\
+\\
+Set $K=4$ and use K-Means for clustering, we can get:\\
+\begin{table}[ht]
+\caption{Distribution of Labels w.r.t GOLD}
+\centering
+\begin{tabular}{c c c c c c c|c}
+\hline\hline
+Label\textbackslash GOLD & GOLD 0 & GOLD 1 & GOLD 2 & GOLD 3 & GOLD 4 & GOLD U & \#/Cluster\\[1ex]
+\hline
+Cluster 1 & 432 & 63 & 309 & 149 & 33 & 207 & 1193\\
+Cluster 2 & 1 & 1 & 16 & 97 & 118 & 1 & 234\\
+Cluster 3 & 8 & 24 & 160 & 218 & 103 & 1 & 514\\
+Cluster 4 & 1559 & 263 & 348 & 40 & 3 & 259 & 2472\\
+\hline
+\#/GOLD & 2000 & 351 & 833 & 504 & 257 & 468\\[1ex]
+\hline
+\end{tabular}
+\label{table:dist_cluster_labels_gold_1}
+\end{table}
+
+% Backward Search
+\section{Backward Search}
+\textbf{We can repeat the same procedure for backward search}.\\
+After backward search with GAP statistic, we obtain the following feature set:\\
+\\
+\{29,`TLCpred\_race\_adjusted';\\
+30,`FRCpred\_race\_adjusted';\\
+21,`pctEmph\_UpperThird\_Slicer';\\
+9,`Insp\_Below950\_Slicer';\\
+8,`pctEmph\_Slicer';\\
+16,`Exp\_Below950\_Slicer';\\
+17,`Exp\_Below910\_Slicer';\\
+22,`pctEmph\_LowerThird\_Slicer';\}\\
+\\
+Set $K=4$ and use K-Means for clustering, we can get:\\
+\begin{table}[ht]
+\caption{Distribution of Labels w.r.t GOLD}
+\centering
+\begin{tabular}{c c c c c c c|c}
+\hline\hline
+Label\textbackslash GOLD & GOLD 0 & GOLD 1 & GOLD 2 & GOLD 3 & GOLD 4 & GOLD U & \#/Cluster\\[1ex]
+\hline
+Cluster 1 & 0 & 1 & 15 & 87 & 110 & 1 & 214\\
+Cluster 2 & 1051 & 155 & 324 & 96 & 15 & 270 & 1911\\
+Cluster 3 & 939 & 172 & 339 & 102 & 22 & 196 & 1770\\
+Cluster 4 & 10 & 23 & 155 & 219 & 110 & 1 & 518\\
+\hline
+\#/GOLD & 2000 & 351 & 833 & 504 & 257 & 468\\[1ex]
+\hline
+\end{tabular}
+\label{table:dist_cluster_labels_gold_1}
+\end{table}
+
+% Forward Search with Supervision
+\section{Forward Search with Supervision}
+Since forward search is quite sensitive to the first few selected features, we can add supervision by including \textbf{`FEV1pp\_utah'} and \textbf{`FEV1\_FVC\_utah'} in the selected feature set. Then we apply forward search for the remaining features. In the end, the selected features are:\\
+\\
+\{
+\}
+
+\end{document}

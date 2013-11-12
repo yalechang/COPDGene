@@ -56,13 +56,13 @@ n_instances, n_features = data.shape
 data_ref = scale(data_con_use_ref)
 
 # feature set
-fs = [37]
+fs = [21,4,6,8,5,16,9,22,17]
 
 # Choose dataset to use according to feature set
 data_use = data[:,fs]
 
 # Choose method to use: 'gmm' or 'dpgmm'
-method = 'dpgmm'
+method = 'gmm'
 
 if method == 'gmm':
     # Apply GMM and BIC to automatically find the number of clusters
@@ -94,7 +94,7 @@ if method == 'gmm':
         print([i,bic[i],logl[i]])
 
 if method == 'dpgmm':
-    alpha_range = [0.001,0.01,0.1,1.,10.,100.,1000.,1e6,1e9,1e20,1e300]
+    alpha_range = [0.001,0.01,0.1,1.,10.,100.,1000.,1e6]
     n_clusters_max = 100
     for alpha in alpha_range:
         # Fit a mixuture of gaussians with Dirichlet Process Mixture
