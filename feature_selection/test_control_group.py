@@ -18,19 +18,9 @@ K = 4
 
 t0 = time()
 # Load training set
-file_data_train = open("/home/changyale/dataset/COPDGene/data_train.pkl","rb")
-info_con,info_dis,gold = pickle.load(file_data_train)
-file_data_train.close()
-data_con, features_name_con, features_type_con = info_con
-
-# Choose only 'continuous' features for backward search
-data_con_use = []
-features_name_use = []
-for j in range(len(features_type_con)):
-    if features_type_con[j] == 'continuous':
-        data_con_use.append(data_con[:,j])
-        features_name_use.append(features_name_con[j])
-data_con_use = np.array(data_con_use).T
+file_data_train = open("/home/changyale/dataset/COPDGene/data_"+\
+        "train_continuous.pkl","rb")
+data_con_use,features_name_use = pickle.load(file_data_train)
 
 # Prepare reference dataset for continuous features
 # Random sample with replacement from training set to form a reference dataset
@@ -83,8 +73,10 @@ for i in range(n_instances):
 #fs = [21,4,6,8,5,16,9,22,17]
 # final selected feature set after backward search
 #fs = [29,30,21,9,8,16,17,22]
-# final selected feature set after forward search with supervision
-fs = [35,37,36,45,24,41,47,42,18]
+# final selected feature set after forward search with supervision 1
+#fs = [51,53,52,34,45,40,25,26,35,12,27]
+# final selected feature set after forward search with supervision 2
+fs = [23,51,26,27,12,24,25,34,32,30]
 
 # Choose dataset to use according to feature set
 data_use = data[:,fs]
@@ -94,7 +86,11 @@ estimator_1 = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
 estimator_1.fit(data_use)
 data_use_labels = estimator_1.labels_
 
-counter = np.zeros((K,6))
+counter = np.arange(K*6).reshape(K,6)
+for i in range(K):
+    for j in range(6):
+        counter[i,j] = 0
+
 for i in range(n_instances):
     counter[data_use_labels[i],gold[i]] += 1
 
