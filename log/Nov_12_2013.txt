@@ -1,0 +1,26 @@
+As Pete suggested, do the following:
+
+1, Rerun the analysis using the updated features, which is described in 
+ExperimentResults/FeatureSelection/features_included_info_mhc20131104.txt.
+
+2, Change supervision in forward search: include 'FEV1pp_utah' and
+'pctEmph_Slicer' before running forward search.
+
+3, Justify the choice of this GAP metric.
+
+4, How to automatically select the number of clusters K?
+
+
+For 1 and 2, I do the following:
+Step 1: Extract feature annotation information from
+features_included_info_mhc_20131104.txt;
+Step 2: Run the following four experiment
+    2.1) Forward search with supervision "FEV1pp_utah" and "FEV1_FVC_utah";
+    2.2) Forward search with supervision "FEV1pp_utah" and "pctEmph_Slicer";
+    2.3) Forward search with GAP(No supervsion);
+    2.4) Backward search with GAP(No supervision);
+
+For 4, how to determine the number of clusters from the data, try:
+    4.1) Run DPGMM+Supervision('FEV1pp_utah' and 'FEV1_FVC_utah');
+    4.2) Run DPGMM+Supervision('FEV1pp_utah' and 'pctEmph_Slicer');
+     
