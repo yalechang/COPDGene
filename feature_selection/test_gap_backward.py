@@ -1,13 +1,13 @@
 import csv
 import matplotlib.pyplot as plt
 
-file_sel = open("data/features_sel_backward_gap_run_1.csv","wb")
+file_sel = open("data_3/features_sel_backward_gap_run_1.csv","wb")
 file_writer = csv.writer(file_sel)
 
 file_writer.writerow(["Loop Index","GAP Value","Removed Feature Index",\
         "Removed Feature Name"])
 for i in range(len(features_rm)):
-    file_writer.writerow([i,score_best[51-i],features_rm[i],\
+    file_writer.writerow([i,score_best[62-i],features_rm[i],\
             features_name_use[features_rm[i]]])
 
 for i in range(2):
@@ -21,7 +21,7 @@ for i in range(len(features_rm)):
     tmp.append(features_name_use[features_rm[len(features_rm)-1-i]])
 
 plt.figure()
-plt.plot(range(1,52),score_best[1:52])
+plt.plot(range(1,63),score_best[1:63])
 plt.xlabel("The Number of Features")
 plt.title("Backward Search with GAP statistic")
 plt.show()

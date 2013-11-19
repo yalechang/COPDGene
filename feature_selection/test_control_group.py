@@ -70,28 +70,37 @@ for i in range(n_instances):
         gold[i] = 5
 
 # final selected feature set after forward search
-#fs = [21,4,6,8,5,16,9,22,17]
+#fs = [1,40,9,7,26,31,35,8,51,38]
 # final selected feature set after backward search
-#fs = [29,30,21,9,8,16,17,22]
+#fs = [58,54,59,25,27,32,23,24,26,30,55,31,33,37,61,60]
 # final selected feature set after forward search with supervision 1
-#fs = [51,53,52,34,45,40,25,26,35,12,27]
+#fs = [51,53,52,57,63,40,58,54,61,33,59]
 # final selected feature set after forward search with supervision 2
-fs = [23,51,26,27,12,24,25,34,32,30]
+fs = [23,51,26,27,10,25,38,8,24,31,32]
 
 # Choose dataset to use according to feature set
 data_use = data[:,fs]
 
 # Clustering using KMeans
-estimator_1 = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
-estimator_1.fit(data_use)
-data_use_labels = estimator_1.labels_
+score = []
+for i in range(50):
+    print "============================"
+    print i
+    estimator_1 = KMeans(init='random',n_clusters=K,n_init=10,n_jobs=-1)
+    estimator_1.fit(data_use)
+    data_use_labels = estimator_1.labels_
+    score.append(estimator_1.inertia_)
+    print score[-1]
+    counter = np.arange(K*6).reshape(K,6)
+    for i in range(K):
+        for j in range(6):
+            counter[i,j] = 0
+    for i in range(n_instances):
+        counter[data_use_labels[i],gold[i]] += 1
+    print counter
+    print sum(counter.T)
+for i in range(50):
+    if score[i] == min(score):
+        print i
 
-counter = np.arange(K*6).reshape(K,6)
-for i in range(K):
-    for j in range(6):
-        counter[i,j] = 0
 
-for i in range(n_instances):
-    counter[data_use_labels[i],gold[i]] += 1
-
-print counter

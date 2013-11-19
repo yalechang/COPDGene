@@ -36,8 +36,7 @@ import pickle
 from python.COPDGene.utils.read_txt_data import read_txt_data
 
 # Load imputed dataset
-file_dataset = open("/home/changyale/dataset/COPDGene/dataset_complete_knn"+\
-        ".pkl","rb")
+file_dataset = open("/home/changyale/dataset/COPDGene/dataset_complete_knn_dropoutlier_11-4-13.pkl","rb")
 dataset,features_name,features_type = pickle.load(file_dataset)
 file_dataset.close()
 n_instances,n_features = dataset.shape
@@ -57,7 +56,7 @@ data_train = np.array(data_train)
 
 # Extract continuous features from data_train according to expert annotation
 file_name = "/home/changyale/dataset/COPDGene/features_included_info_"+\
-        "mhc20131104.txt"
+        "mhc20131104_with_times.txt"
 features_annotation = read_txt_data(file_name)
 features_name_1 = features_annotation[1:features_annotation.shape[0],0]
 for i in range(len(features_name)):
