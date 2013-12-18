@@ -1,0 +1,27 @@
+% Determine the number of feature clusters
+
+% Compute Normalized HSIC matrix
+mtr_nhsic = zeros(n_features);
+for i = 1:n_features
+    for j = i:n_features
+        mtr_nhsic(i,j) = mtr_hsic(i,j)/sqrt(mtr_hsic(i,i)*mtr_hsic(j,j));
+        mtr_nhsic(j,i) = mtr_nhsic(i,j);
+    end
+end
+
+% Degree matrix
+mtr_d = zeros(n_features);
+for i = 1:n_features
+    mtr_d(i,i) = sum(mtr_nhsic(i,:));
+end
+
+% Symmetric Laplacian
+mtr_l = zeros(n_features);
+for i = 1:n_features
+    for j = 1:n_features
+        mtr_l(i,j) = mtr_nhsic(i,j)/sqrt(mtr_d(i,i)*mtr_d(j,j));
+    end
+end
+
+[eig_vec,eig_val] = eig(mtr_l);
+plot();
