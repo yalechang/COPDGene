@@ -25,10 +25,11 @@ mtr = np.array(lines)
 file_csv.close()
 
 dataset = mtr[1:mtr.shape[0],1:mtr.shape[1]]
+patients_id = mtr[1:mtr.shape[0],0] 
 features_name = mtr[0,1:mtr.shape[1]]
 features_type = ['Unspecified']*mtr.shape[1]
 
 file_pkl = open("/home/changyale/dataset/COPDGene/dataset_complete_knn_windsor_11-18-13.pkl","wb")
-pickle.dump([dataset,features_name,features_type],file_pkl)
+pickle.dump([dataset,patients_id,features_name,features_type],file_pkl)
 file_pkl.close()
 

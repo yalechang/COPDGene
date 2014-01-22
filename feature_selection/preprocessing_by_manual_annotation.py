@@ -36,8 +36,8 @@ import pickle
 from python.COPDGene.utils.read_txt_data import read_txt_data
 
 # Load imputed dataset
-file_dataset = open("/home/changyale/dataset/COPDGene/dataset_complete_knn_dropoutlier_11-4-13.pkl","rb")
-dataset,features_name,features_type = pickle.load(file_dataset)
+file_dataset = open("/home/changyale/dataset/COPDGene/dataset_complete_knn_windsor_11-18-13.pkl","rb")
+dataset,patients_id,features_name,features_type = pickle.load(file_dataset)
 file_dataset.close()
 n_instances,n_features = dataset.shape
 
@@ -49,14 +49,16 @@ for j in range(n_features):
 assert index_rgc<n_features
 
 data_train = []
+id_train = []
 for i in range(n_instances):
     if float(dataset[i,index_rgc]) >=1 and float(dataset[i,index_rgc]) <= 5:
         data_train.append(list(dataset[i,:]))
+        id_train.append(patients_id[i])
 data_train = np.array(data_train)
 
 # Extract continuous features from data_train according to expert annotation
 file_name = "/home/changyale/dataset/COPDGene/features_included_info_"+\
-        "mhc20131104_with_times.txt"
+        "mhc20131104.txt"
 features_annotation = read_txt_data(file_name)
 features_name_1 = features_annotation[1:features_annotation.shape[0],0]
 for i in range(len(features_name)):
@@ -77,6 +79,6 @@ data_train_con = np.double(data_train[:,features_id_con])
 # Save the continuous features to pickle and csv file
 file_name = "/home/changyale/dataset/COPDGene/data_train_continuous.pkl"
 file_result = open(file_name,"wb")
-pickle.dump([data_train_con,features_name_con],file_result)
+pickle.dump([data_train_con,id_train,features_name_con],file_result)
 file_result.close()
 
