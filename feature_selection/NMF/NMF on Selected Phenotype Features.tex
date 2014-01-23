@@ -1,0 +1,225 @@
+\documentclass[11pt]{article}
+
+% Doc info
+\title{\textbf{NMF on Selected Phenotype Features}}
+\author{Yale Chang}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{url}
+
+\begin{document}
+\maketitle
+
+% Section 1
+\section{Dataset}
+Apply backward search on dataset consisting of 4413 patients and 63 continuous phenotype features with GAP statistic as clustering quality metric, 13 features are kept in the end. They are\\
+\textit{\{55,`pre\_FVC';\\
+54,`pre\_FEV6';\\
+26,`Exp\_Below950\_Slicer';\\
+27,`Exp\_Below910\_Slicer';\\
+32,`pctEmph\_UpperThird\_Slicer';\\
+53,`pre\_FEV1';\\
+19,`Insp\_Below910\_Slicer';\\
+17,`TLC\_Slicer';\\
+33,`pctEmph\_LowerThird\_Slicer';\\
+25,`pctGasTrap\_Slicer';\\
+18,`pctEmph\_Slicer';\\
+28,`Exp\_Below856\_Slicer';\\
+50,`FVC\_utah';\}}\\
+\\
+Note that the feature values are all nonnegative. We're interested in extracting latent factors from these features so that we can make connections between latent factors and disease axis. NMF is suitable for extracting latent factors from a nonnegative data matrix. However, a transformation(by Pete) on the original data is made in order to satisfy the additive assumption of NMF. The details of the transformation is described in the file named \textit{TransformData.html}
+
+\section{Parameter Settings}
+The NMF implementation we use comes from scikit-learn\cite{sklearn}, which is an open source machine learning library developed in Python.\\
+\\
+The parameters of NMF include:
+\begin{table}[ht]
+\caption{Parameters Settings of NMF}
+\centering
+\begin{tabular}{c c c c}
+\hline\hline
+Parameters & Meaning & Default & Settings\\[1ex]
+\hline
+n\_components & \#latent factors & \#features & Range(2,6) \\
+\hline
+init & initialization method & nndsvdar & nndsvad\\
+sparseness & enforce sparsity & None & None \\
+beta & degree of sparsity & 1.0 & 1.0 \\
+eta & degree of correctness & 0.1 & 0.1\\
+\hline
+tol & tolerance value & 1e-4 & 1e-4\\
+max\_iter & \#iterations & 200 & 200\\
+nls\_max\_iter & \#iterations in NLS & 2000 & 2000\\
+random\_state & random number generator & init & init\\[1ex]
+\hline
+\end{tabular}
+\label{NMF_setting}
+\end{table}
+\\
+The `init' attribute determines the initialization method applied, which has a great impact on the performance of the method. NMF implements the method nndsvd(Nonnegative Double Singular Value Decomposition). nndsvd is based on two SVD processes, one approximating the data matrix, the other approximating positive sections of the resulting partial SVD factors utilizing an algebraic property of unit rank matrices. The basic nndsvd algorithm is better fit for sparse factorization. Its variants nndsvda(in which all zeros are set equal to the mean of all elements in the data), and nndsvdar(in which the zeros are set to random perturbations less than the mean of the data divided by 100) are recommended in the dense case.\\
+\\
+NMF can also be initialized with random non-negative matrices, by passing an integer seed or a RandomState to `init'.\\
+\\
+In NMF, sparseness can be enforced by setting the attribute `sparseness' to `data' or `components'. Sparse components lead to localized features, and sparse data leads to a more efficient representation of the data.
+
+\section{Experiment Results}
+\subsection{No Sparsity Constraints}
+\begin{equation}
+	\underset{H,W}\min||X-HW||_F^2\quad \text{s.t.}\quad H\in\mathbb{R}_+^{n\times q},W\in\mathbb{R}_+^{q\times d}
+\end{equation}
+\textbf{Notation:}\\
+\begin{itemize}
+	\item{$X$ is a $n\times d$ data matrix, where each row representing a patient with $d$ features. In our case, we have $n=4413,d=13$.}
+	\item{$q$ is the number of latent factors.}
+	\item{$H$ represents the low embedding matrix for patients.}
+	\item{Each row of $W$ represents a latent factor, which can be written as a linear combination of $d $ original features.}
+\end{itemize}
+
+Use parameter settings listed in Table \ref{NMF_setting}, we vary the number of latent factors($q$) from 2 to 6 and look at matrix $W$ as well as the similarity matrix between patients obtained from low dimensional embedding matrix $H$.\\
+
+% q=2 Table
+\begin{table}[ht]
+\caption{Latent Factors(Dense; $q=2$)}
+\centering
+\begin{tabular}{c | c  c}
+\hline\hline
+Features\textbackslash Latent Factors & Factor 1 & Factor 2\\[1ex]
+\hline
+pre\_FVC  &  0.54  &  5.83 \\
+pre\_FEV6  &  2.26  &  5.24 \\
+Exp\_Below950\_Slicer  &  8.61  &  0.00 \\
+Exp\_Below910\_Slicer  &  19.74  &  0.00 \\
+pctEmph\_UpperThird\_Slicer  &  15.17  &  0.00 \\
+pre\_FEV1  &  2.00  &  3.78 \\
+Insp\_Below910\_Slicer  &  21.32  &  38.99 \\
+TLC\_Slicer  &  2.34  &  8.84 \\
+pctEmph\_LowerThird\_Slicer  &  8.88  &  4.18 \\
+pctGasTrap\_Slicer  &  32.60  &  13.54 \\
+pctEmph\_Slicer  &  13.05  &  1.18 \\
+Exp\_Below856\_Slicer  &  32.60  &  13.54 \\
+FVC\_utah  &  0.63  &  5.94 \\
+\hline
+\textbf{Reconstruction Error} & 792.05\\
+\hline
+\end{tabular}
+\end{table}
+
+% q=3 Table
+\begin{table}[ht]
+\caption{Latent Factors(Dense; $q=3$)}
+\centering
+\begin{tabular}{c | c | c | c}
+\hline\hline
+Features\textbackslash Latent Factors & Factor 1 & Factor 2 & Factor 3\\[1ex]
+\hline
+pre\_FVC  &  0.00  &  4.76  &  2.36 \\
+pre\_FEV6  &  1.21  &  3.47  &  4.37 \\
+Exp\_Below950\_Slicer  &  10.55  &  0.00  &  0.89 \\
+Exp\_Below910\_Slicer  &  21.16  &  0.00  &  7.64 \\
+pctEmph\_UpperThird\_Slicer  &  19.09  &  2.38  &  0.00 \\
+pre\_FEV1  &  1.24  &  2.42  &  3.43 \\
+Insp\_Below910\_Slicer  &  20.03  &  41.59  &  10.39 \\
+TLC\_Slicer  &  1.01  &  7.32  &  4.62 \\
+pctEmph\_LowerThird\_Slicer  &  10.15  &  6.05  &  0.82 \\
+pctGasTrap\_Slicer  &  28.82  &  2.66  &  31.92 \\
+pctEmph\_Slicer  &  15.96  &  3.90  &  0.00 \\
+Exp\_Below856\_Slicer  &  28.82  &  2.66  &  31.92 \\
+FVC\_utah  &  0.00  &  4.85  &  2.52 \\
+\hline
+\textbf{Reconstruction Error} & 481.60\\
+\hline
+\end{tabular}
+\end{table}
+
+% q=4 Table
+\begin{table}[ht]
+\caption{Latent Factors(Dense; $q=4$)}
+\centering
+\begin{tabular}{c | c | c | c |c }
+\hline\hline
+Features\textbackslash Latent Factors & Factor 1 & Factor 2 & Factor 3 & Factor 4\\[1ex]
+\hline
+pre\_FVC  &  0.27  &  3.94  &  12.62  &  0.00 \\
+pre\_FEV6  &  1.96  &  2.09  &  15.21  &  0.71 \\
+Exp\_Below950\_Slicer  &  3.46  &  0.00  &  0.00  &  18.15 \\
+Exp\_Below910\_Slicer  &  13.83  &  0.00  &  0.00  &  23.28 \\
+pctEmph\_UpperThird\_Slicer  &  0.99  &  3.99  &  1.61  &  44.53 \\
+pre\_FEV1  &  1.79  &  1.44  &  10.93  &  0.65 \\
+Insp\_Below910\_Slicer  &  21.68  &  44.45  &  3.84  &  6.17 \\
+TLC\_Slicer  &  2.11  &  5.84  &  17.96  &  0.23 \\
+pctEmph\_LowerThird\_Slicer  &  5.70  &  5.90  &  0.00  &  11.69 \\
+pctGasTrap\_Slicer  &  37.08  &  4.36  &  15.05  &  0.00 \\
+pctEmph\_Slicer  &  3.25  &  4.73  &  0.00  &  31.39 \\
+Exp\_Below856\_Slicer  &  37.08  &  4.36  &  15.05  &  0.00 \\
+FVC\_utah  &  0.38  &  3.99  &  12.78  &  0.00 \\
+\hline
+\textbf{Reconstruction Error} & 399.64\\
+\hline
+\end{tabular}
+\end{table}
+
+% q=5
+\begin{table}[ht]
+\caption{Latent Factors(Dense; $q=5$)}
+\centering
+\begin{tabular}{c | c | c | c |c |c}
+\hline\hline
+Features\textbackslash Latent Factors & Factor 1 & Factor 2 & Factor 3 & Factor 4 & Factor 5\\[1ex]
+\hline
+pre\_FVC  &  0.00  &  4.11  &  12.56  &  0.29  &  2.88 \\
+pre\_FEV6  &  1.59  &  2.04  &  15.30  &  1.05  &  3.74 \\
+Exp\_Below950\_Slicer  &  3.16  &  0.00  &  0.37  &  19.82  &  0.70 \\
+Exp\_Below910\_Slicer  &  13.51  &  0.00  &  0.00  &  26.32  &  0.00 \\
+pctEmph\_UpperThird\_Slicer  &  0.16  &  3.08  &  0.00  &  38.94  &  27.31 \\
+pre\_FEV1  &  1.52  &  1.38  &  10.97  &  0.84  &  2.93 \\
+Insp\_Below910\_Slicer  &  21.09  &  47.62  &  1.33  &  6.48  &  13.22 \\
+TLC\_Slicer  &  1.67  &  6.12  &  17.88  &  0.78  &  4.34 \\
+pctEmph\_LowerThird\_Slicer  &  4.66  &  6.98  &  0.00  &  16.13  &  0.00 \\
+pctGasTrap\_Slicer  &  36.85  &  3.65  &  15.40  &  0.00  &  9.35 \\
+pctEmph\_Slicer  &  2.63  &  5.36  &  0.00  &  33.70  &  3.49 \\
+Exp\_Below856\_Slicer  &  36.85  &  3.65  &  15.40  &  0.00  &  9.35 \\
+FVC\_utah  &  0.11  &  4.17  &  12.70  &  0.20  &  3.02 \\
+\hline
+\textbf{Reconstruction Error} & 330.60\\
+\hline
+\end{tabular}
+\end{table}
+
+% q=6
+\begin{table}[ht]
+\caption{Latent Factors(Dense; $q=6$)}
+\centering
+\begin{tabular}{c | c | c | c |c |c |c}
+\hline\hline
+Features\textbackslash Latent Factors & Factor 1 & Factor 2 & Factor 3 & Factor 4 & Factor 5 & Factor 6\\[1ex]
+\hline
+pre\_FVC  &  0.76  &  1.57  &  13.60  &  0.00  &  0.00  &  0.72 \\
+pre\_FEV6  &  2.35  &  0.00  &  15.07  &  0.00  &  0.14  &  2.68 \\
+Exp\_Below950\_Slicer  &  2.34  &  0.00  &  0.00  &  9.09  &  8.21  &  20.77 \\
+Exp\_Below910\_Slicer  &  12.50  &  0.00  &  0.00  &  16.08  &  7.59  &  28.93 \\
+pctEmph\_UpperThird\_Slicer  &  2.43  &  3.89  &  0.00  &  33.48  &  30.64  &  12.93 \\
+pre\_FEV1  &  2.07  &  0.00  &  10.74  &  0.00  &  0.32  &  2.09 \\
+Insp\_Below910\_Slicer  &  21.85  &  48.45  &  15.07  &  1.53  &  11.26  &  2.30 \\
+TLC\_Slicer  &  2.79  &  2.36  &  19.63  &  0.00  &  0.00  &  2.19 \\
+pctEmph\_LowerThird\_Slicer  &  3.66  &  9.63  &  0.00  &  9.30  &  0.00  &  18.88 \\
+pctGasTrap\_Slicer  &  39.47  &  1.11  &  11.28  &  0.00  &  3.80  &  7.14 \\
+pctEmph\_Slicer  &  3.08  &  6.58  &  0.00  &  28.06  &  10.14  &  18.96 \\
+Exp\_Below856\_Slicer  &  39.47  &  1.11  &  11.28  &  0.00  &  3.80  &  7.14 \\
+FVC\_utah  &  0.93  &  1.58  &  13.72  &  0.00  &  0.00  &  0.56 \\
+\hline
+\textbf{Reconstruction Error} & 306.65\\
+\hline
+\end{tabular}
+\end{table}
+Note that the similarity matrices aren't put in this file. Please refer to the png files in the same folder.\\
+\\
+\subsection{Enforce Sparsity Constraints}
+We can also enforce sparsity constraints on matrix $W$ if necessary so that there will be more elements in $W$ near 0. However, the reconstruction error of the approximation will be larger accordingly.
+\begin{thebibliography}{9}
+\bibitem{sklearn}\url{http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html#sklearn.decomposition.NMF}\\[-20pt]
+\end{thebibliography}
+
+\end{document}
